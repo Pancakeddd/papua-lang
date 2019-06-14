@@ -1,5 +1,5 @@
-import matchwhile, is_identifier from require 'lex'
+import matchwhile, getidentifier from require 'lex'
 
 -- Placeholder! Testing lexing.
 
-print matchwhile 1, "Hello World!", is_identifier
+print getidentifier 1, "Hello123 World"

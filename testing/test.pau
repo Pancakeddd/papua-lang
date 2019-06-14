@@ -2,4 +2,4 @@ x :: Number
 x = 10
 
 z :: String
-z = "Hello, World!"
+z = "Hello1, World!"
