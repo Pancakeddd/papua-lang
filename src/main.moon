@@ -1,6 +1,7 @@
-import matchwhile, getidentifier, nexttoken from require 'lex'
+import matchwhile, getidentifier, nexttoken, lex from require 'lex'
 
 -- Placeholder! Testing lexing.
 
-tok = nexttoken("  za ", 1)
-print tok.value, tok.start
+tok = lex "ab :: gab"
+for x in *tok
+    print x.value, x.name

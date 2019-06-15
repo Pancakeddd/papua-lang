@@ -10,8 +10,20 @@ token = (name, value, start) ->
         :start
     }
 
+-- converts char index and string into line index
+findlineposition = (s, i) ->
+    idx = 1
+    line = 1
+    while true
+        if peek(s, idx) == nil or idx == i
+            return line
+        if peek(s, idx) == "\n"
+            line += 1
+
 --- throw lexical error (TODO: make more detailed? maybe "Did you mean x, y, z...?")
-lexerr = (str) ->
+lexerr = (str, s, idx) ->
+    if idx and s
+        error "Lexical Error: #{str} at line #{findlineposition s, idx}"
     error "Lexical Error: #{str}"
 
 -- simple string.sub reduction for ease of use
@@ -37,7 +49,6 @@ getsymbol = (sym, i, s) ->
     idx = i
     otraidx = 1
     buff = ""
-    print s
     while peek(s, idx) == peek(sym, otraidx) and peek(s, idx) ~= nil
         buff ..= peek s, idx
         otraidx += 1
@@ -49,7 +60,7 @@ getsymbol = (sym, i, s) ->
 matchwhile = (i, s, f) ->
     idx = i
     buff = ""
-    while f peek s, idx
+    while peek(s, idx) ~= nil and f peek s, idx
         buff ..= peek s, idx
         idx += 1
     return buff, idx
@@ -59,7 +70,7 @@ matchwhileswitch = (i, s, f1, f2) ->
     idx = i
     buff = ""
     f = f1
-    while f peek s, idx
+    while peek(s, idx) ~= nil and f(peek s, idx) ~= nil
         f = f2 if f == f1
         buff ..= peek s, idx
         idx += 1
@@ -67,14 +78,20 @@ matchwhileswitch = (i, s, f1, f2) ->
         
 -- gets identifier
 getidentifier = (i, s) ->
-    token("identifier", matchwhileswitch(i, s, is_identifier, is_identifier2), i), i
+    t, ni = matchwhileswitch(i, s, is_identifier, is_identifier2)
+    if ni ~= i
+        token("identifier", t, i), ni
 
 -- gets double colon
 getdoublecolon = (i, s) ->
-    x, ni = getsymbol "::", i, s
-    return token("doublecolon", "::", i), ni if x ~= false
+    ni = getsymbol "::", i, s
+    if ni
+        return token("doublecolon", "::", i), ni
 
 nexttoken = (s, i) ->
+    if peek(s, i) == nil
+        return
+
     if peek(s, i)\match "[ \t\n]" -- Skip white space and other fluff
         return nexttoken s, i+1
 
@@ -86,8 +103,21 @@ nexttoken = (s, i) ->
     if identifier
         return identifier, ni
 
+    -- throw error?
+    
+    if peek(s, i) ~= nil
+        lexerr "Unexpected '#{peek(s, i)}'"
+
 -- simple lexer that marches nexttoken, TODO
 lex = (s) ->
+    i = 1
+    tok = {}
+    while true
+        nt, ni = nexttoken s, i
+        return tok if not nt or not ni
+        print nt.name, ni
+        i = ni
+        table.insert tok, nt
 
 
-{:matchwhile, :getidentifier, :nexttoken}
+{:matchwhile, :getidentifier, :nexttoken, :lex}
