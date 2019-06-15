@@ -88,6 +88,7 @@ getdoublecolon = (i, s) ->
     if ni
         return token("doublecolon", "::", i), ni
 
+-- gets next token or throws an error if it can't get a sensible next token
 nexttoken = (s, i) ->
     if peek(s, i) == nil
         return
