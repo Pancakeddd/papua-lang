@@ -1,5 +1,6 @@
-import matchwhile, getidentifier from require 'lex'
+import matchwhile, getidentifier, nexttoken from require 'lex'
 
 -- Placeholder! Testing lexing.
 
-print getidentifier 1, "Hello123 World"
+tok = nexttoken("  za ", 1)
+print tok.value, tok.start

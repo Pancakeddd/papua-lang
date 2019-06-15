@@ -3,10 +3,11 @@
 --
 
 --- composes token table
-token = (name, value) ->
+token = (name, value, start) ->
     {
         :name
         :value
+        :start
     }
 
 --- throw lexical error (TODO: make more detailed? maybe "Did you mean x, y, z...?")
@@ -15,6 +16,8 @@ lexerr = (str) ->
 
 -- simple string.sub reduction for ease of use
 peek = (str, i) ->
+    if i > #str
+        return nil
     string.sub str, i, i
 
 --
@@ -28,6 +31,19 @@ is_identifier = (c) ->
 -- second part of identifier filter, picks up 0-9
 is_identifier2 = (c) ->
     c\match "[a-zA-Z_0-9]"
+
+-- gets symbol if it exists
+getsymbol = (sym, i, s) ->
+    idx = i
+    otraidx = 1
+    buff = ""
+    print s
+    while peek(s, idx) == peek(sym, otraidx) and peek(s, idx) ~= nil
+        buff ..= peek s, idx
+        otraidx += 1
+        idx += 1
+    return idx if buff == sym
+    return false
 
 -- simple filter base that tries to match as many chars that the filter picks up
 matchwhile = (i, s, f) ->
@@ -49,8 +65,29 @@ matchwhileswitch = (i, s, f1, f2) ->
         idx += 1
     return buff, idx
         
+-- gets identifier
+getidentifier = (i, s) ->
+    token("identifier", matchwhileswitch(i, s, is_identifier, is_identifier2), i), i
 
-getidentifier = (i, s) -> -- TODO
-    matchwhileswitch i, s, is_identifier, is_identifier2
+-- gets double colon
+getdoublecolon = (i, s) ->
+    x, ni = getsymbol "::", i, s
+    return token("doublecolon", "::", i), ni if x ~= false
 
-{:matchwhile, :getidentifier}
+nexttoken = (s, i) ->
+    if peek(s, i)\match "[ \t\n]" -- Skip white space and other fluff
+        return nexttoken s, i+1
+
+    doublecolon, ni = getdoublecolon i, s
+    if doublecolon
+        return doublecolon, ni
+
+    identifier, ni = getidentifier i, s
+    if identifier
+        return identifier, ni
+
+-- simple lexer that marches nexttoken, TODO
+lex = (s) ->
+
+
+{:matchwhile, :getidentifier, :nexttoken}
