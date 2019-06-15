@@ -1,0 +1,5 @@
+Value = Identifier | Int | String
+
+TypeBlock = Identifier
+        | Identifier '->' TypeBlock
+TypeDefine = Identifier '::' TypeBlock
