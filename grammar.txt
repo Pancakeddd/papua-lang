@@ -1,5 +1,22 @@
+# GRAMMAR WIP!
+
 Value = Identifier | Int | String
+
+Expr 
+
+Expression = SExpression | IExpression
+
+SExpression = #Anything that isn't an IExpression
+        Define
+
+IExpression = #an IExpression is any expression that doesn't return a value (So you can't do like, 1 + 5 + x = 10 or something)
+        Value
 
 TypeBlock = Identifier
         | Identifier '->' TypeBlock
+
 TypeDefine = Identifier '::' TypeBlock
+
+SimpleDefine = Identifier '=' IExpression
+
+Define = TypeDefine SimpleDefine

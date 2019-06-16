@@ -1,7 +1,7 @@
-import matchwhile, getidentifier, nexttoken, lex from require 'lex'
+import compile from require 'papua'
+import parse_identifier from require 'parser'
 
--- Placeholder! Testing lexing.
-
-tok = lex "ab :: gab"
+tok = compile "ab :: \ngab a"
 for x in *tok
-    print x.value, x.name
+  print x.value, x.name, x.start
+print "araerearaew", parse_identifier(tok, 1).value
