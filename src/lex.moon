@@ -55,6 +55,9 @@ is_identifier = (c) ->
 is_identifier2 = (c) ->
 	c\match "[a-zA-Z_0-9]"
 
+is_digit = (c) ->
+	c\match "[0-9]"
+
 -- gets symbol if it exists
 getsymbol = (sym, i, s) ->
 	idx = i
@@ -93,6 +96,12 @@ getidentifier = (i, s) ->
 	if ni ~= i
 		token("identifier", t, i), ni
 
+-- gets number
+getnumber = (i, s) ->
+	t, ni = matchwhile(i, s, is_digit)
+	if ni ~= i
+		token("number", t, i), ni
+
 -- gets double colon
 getdoublecolon = (i, s) ->
 	ni = getsymbol "::", i, s
@@ -124,6 +133,10 @@ nexttoken = (s, i) ->
 	identifier, ni = getidentifier i, s
 	if identifier
 		return identifier, ni
+
+	number, ni = getnumber i, s
+	if number
+		return number, ni
 
 	set, ni = getset i, s
 	if set

@@ -19,10 +19,25 @@ parse_identifier = (tok, i) ->
       value: v
     }, idx
 
+  -- parses number
+parse_number = (tok, i) ->
+  idx = i
+  if peek(tok, idx) and peek(tok, idx).name == "number"
+    v = peek(tok, idx).value
+    idx += 1
+    return {
+      name: "number"
+      value: v
+    }, idx
+
 parse_value = (tok, i) ->
   identifier = parse_identifier tok, i
   if identifier
     return identifier, i+1
+
+  number = parse_number tok, i
+  if number
+    return number, i+1
 
 parse_iexpr = (tok, i) ->
   value, idx = parse_value tok, i
@@ -66,6 +81,8 @@ parse_simpledefine = (tok, i) ->
           value1: ident
           value2: v
         }, idx
+      else
+        parerror "Expected an iexpression (what you'd expect after '=') after '=' (equals) in define", nil, idx
       
 
 -- parses typedefine for use of common definitions
@@ -103,6 +120,8 @@ parse_define = (tok, i) ->
           type: td
           set: sd
         }, idx
+      else
+        parerror "Expected a define archetype (a = 10 et al) inside bigger define block", nil, idx
 
 
 
