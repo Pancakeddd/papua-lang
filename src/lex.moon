@@ -2,6 +2,13 @@
 --    Util
 --
 
+DidYouMean = {
+	"[": "'('"
+	"]": "')'"
+	":": "'::''"
+	":=": "'='"
+}
+
 --- composes token table
 token = (name, value, start) ->
 	{
@@ -9,6 +16,12 @@ token = (name, value, start) ->
 			:value
 			:start
 	}
+
+-- simple string.sub reduction for ease of use
+peek = (str, i) ->
+	if i > #str
+		return nil
+	string.sub str, i, i
 
 -- converts char index and string into line index
 findlineposition = (s, i) ->
@@ -19,18 +32,17 @@ findlineposition = (s, i) ->
 			return line
 		if peek(s, idx) == "\n"
 			line += 1
+		idx += 1
 
 --- throw lexical error (TODO: make more detailed? maybe "Did you mean x, y, z...?")
-lexerr = (str, s, idx) ->
+lexerr = (str, s, idx, l) ->
+	didyoumean = ""
+	if DidYouMean[l]
+		didyoumean = ", Did you mean #{DidYouMean[l]}?"
 	if idx and s
-		error "Lexical Error: #{str} at line #{findlineposition s, idx}"
-	error "Lexical Error: #{str}"
+		error "Lexical Error: #{str} at line #{findlineposition s, idx}#{didyoumean}"
+	error "Lexical Error: #{str}#{didyoumean}"
 
--- simple string.sub reduction for ease of use
-peek = (str, i) ->
-	if i > #str
-		return nil
-	string.sub str, i, i
 --
 --  Filters
 --
@@ -92,6 +104,11 @@ getarrow = (i, s) ->
 	if ni
 		return token("arrow", "->", i), ni
 
+getset = (i, s) ->
+	ni = getsymbol "=", i, s
+	if ni
+		return token("set", "=", i), ni
+
 -- gets next token or throws an error if it can't get a sensible next token
 nexttoken = (s, i) ->
 	if peek(s, i) == nil
@@ -108,10 +125,18 @@ nexttoken = (s, i) ->
 	if identifier
 		return identifier, ni
 
+	set, ni = getset i, s
+	if set
+		return set, ni
+
+	arrow, ni = getarrow i, s
+	if arrow
+		return arrow, ni
+
 	-- throw error?
 	
 	if peek(s, i) ~= nil
-		lexerr "Unexpected '#{peek(s, i)}'"
+		lexerr "Unexpected '#{peek(s, i)}'", s, i, peek(s, i)
 
 -- simple lexer that marches nexttoken, TODO
 lex = (s) ->

@@ -1,7 +1,9 @@
-import compile from require 'papua'
-import parse_identifier from require 'parser'
+import compilefile from require 'papua'
+import parse_identifier, parse_typedefine, parse_define from require 'parser'
 
-tok = compile "ab :: \ngab a"
+pprint = require 'pprint'
+
+tok = compilefile "test.pua"
 for x in *tok
   print x.value, x.name, x.start
-print "araerearaew", parse_identifier(tok, 1).value
+pprint parse_define(tok, 1)
