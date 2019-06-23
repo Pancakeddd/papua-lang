@@ -1,2 +1,2 @@
-x :: Number
-x = 10
+square :: Number -> Number
+square x y z = x * y * z

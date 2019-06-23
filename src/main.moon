@@ -1,7 +1,7 @@
 import compilefile from require 'papua'
-import parse_identifier, parse_typedefine, parse_define from require 'parser'
+import parse_identifier, parse_typedefine, parse_define, parse, parse_fundefine from require 'parser'
 import env from require 'env'
-import compile from require 'compile'
+import compilem from require 'compile'
 
 pprint = require 'pprint'
 
@@ -11,6 +11,6 @@ for x in *tok
 
 e = env!
 
-ast = parse_define(tok, 1)
+ast = parse(tok, 1)
 pprint ast
-print compile ast, e
+print compilem ast, e

@@ -5,7 +5,7 @@
 DidYouMean = {
 	"[": "'('"
 	"]": "')'"
-	":": "'::''"
+	":": "'::'"
 	":=": "'='"
 }
 
@@ -58,6 +58,9 @@ is_identifier2 = (c) ->
 is_digit = (c) ->
 	c\match "[0-9]"
 
+is_simpleop = (c) ->
+	c\match "[%+%*-/]"
+
 -- gets symbol if it exists
 getsymbol = (sym, i, s) ->
 	idx = i
@@ -102,6 +105,12 @@ getnumber = (i, s) ->
 	if ni ~= i
 		token("number", t, i), ni
 
+-- get op
+getop = (i, s) ->
+	t, ni = matchwhile(i, s, is_simpleop)
+	if ni ~= i
+		token("op", t, i), ni
+
 -- gets double colon
 getdoublecolon = (i, s) ->
 	ni = getsymbol "::", i, s
@@ -145,6 +154,10 @@ nexttoken = (s, i) ->
 	arrow, ni = getarrow i, s
 	if arrow
 		return arrow, ni
+
+	op, ni = getop i, s
+	if op
+		return op, ni
 
 	-- throw error?
 	
